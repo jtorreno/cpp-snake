@@ -2,58 +2,65 @@
 #include <iostream>
 #include <locale>
 #include <vector>
-
 #include <conio.h>
 
 enum class input { none, up, down, left, right };
 
-input keyboard_input() noexcept {
+auto keyboard_input() noexcept {
     if (_kbhit()) {
         auto character = std::tolower(_getch());
 
         switch (character) {
-            case 'w': return input::up;
-            case 'a': return input::left;
-            case 's': return input::down;
-            case 'd': return input::right;
+        case 'w': return input::up;
+        case 'a': return input::left;
+        case 's': return input::down;
+        case 'd': return input::right;
 
-            default: return input::none;
+        default: return input::none;
         }
     }
 
     return input::none;
 }
 
-class snake_map {
-public:
-    snake_map(size_t height, size_t width) : map(height, std::vector<std::string>(width, std::string(" "))){
-        std::for_each(map.front().begin(), map.front().end(), [](auto& s) { s = "X"; });
-        std::for_each(map.back().begin(), map.back().end(), [](auto& s) { s = "X"; });
+namespace snek {
 
-        std::for_each(map.begin(), map.end(), [](auto& v){ v.front() = "X"; });
-        std::for_each(map.begin(), map.end(), [](auto& v){ v.back() = "X"; });
-    }
+    struct map {
+        map(size_t const height, size_t const width) : _map(height, std::vector<std::string>(width, std::string(" "))) {
+            std::for_each(_map.front().begin(), _map.front().end(), [](auto& s) { s = "X"; });
+            std::for_each(_map.back().begin(), _map.back().end(), [](auto& s) { s = "X"; });
 
-    void print() const noexcept {
-        for (auto const& v : map) {
-            for (auto const& i : v) std::cout << i;
-            std::cout << std::endl;
+            std::for_each(_map.begin(), _map.end(), [](auto& v) { v.front() = "X"; });
+            std::for_each(_map.begin(), _map.end(), [](auto& v) { v.back() = "X"; });
         }
-    }
 
-    std::string const& at(unsigned int x, unsigned int y) const { return map.at(y).at(x); }
-    std::string& at(unsigned int x, unsigned int y) { return map.at(y).at(x); }
-private:
-    std::vector<std::vector<std::string>> map;
-};
+        auto print() const noexcept {
+            for (auto const& v : _map) {
+                for (auto const& i : v) std::cout << i;
+                std::cout << std::endl;
+            }
+        }
 
-int main() {
-    snake_map ssnake_map(8, 8);
-    ssnake_map.at(3, 4) = "O";
+        std::string const& at(unsigned int x, unsigned int y) const { return _map.at(y).at(x); }
+        std::string& at(unsigned int x, unsigned int y) { return _map.at(y).at(x); }
 
-    ssnake_map.print();
+    private:
+        std::vector<std::vector<std::string>> _map;
+    };
 
-    while (true) {
+}
+
+auto main() -> int {
+    
+    snek::map snake_map(8, 8);
+    snake_map.at(3, 4) = "O";
+    snake_map.print();
+
+    auto some_exit_condition = false;
+    while (!some_exit_condition) {
         if (keyboard_input() == input::down) std::cout << "yay" << std::endl;
     }
+
+    return 0;
+
 }
