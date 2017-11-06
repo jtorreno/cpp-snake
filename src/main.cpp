@@ -54,7 +54,7 @@ namespace snek {
 
     class snake {
     public:
-        snake(vec2 const& spawn_position, input initial_direction) : _body { spawn_position }, length(1), last_direction(initial_direction) {}
+        snake(vec2 const& spawn_position, input initial_direction) : _body { spawn_position }, length(3), last_direction(initial_direction) {}
 
         void grow() { ++length; }
 
@@ -71,8 +71,8 @@ namespace snek {
                 case input::none: {}
             }
 
-            _body.erase(_body.begin() + length);
-            std::cout << "snake length: " << _body.size() << " x: " << _body.front().x << " y: " << _body.front().y << std::endl;
+            if (_body.size() == length + 1) _body.erase(_body.begin() + length);
+            std::cout << "score: " << _body.size() << " x: " << _body.front().x << " y: " << _body.front().y << std::endl;
         }
 
         auto const& body() { return _body; }
