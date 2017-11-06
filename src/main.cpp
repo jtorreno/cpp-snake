@@ -41,7 +41,7 @@ namespace snek {
         auto print() const noexcept {
             for (auto const& v : _map) {
                 for (auto const& i : v) std::cout << i;
-                std::cout << std::endl;
+                std::cout << "\n";
             }
         }
 
@@ -54,7 +54,7 @@ namespace snek {
 
     class snake {
     public:
-        snake(vec2 const& spawn_position, input initial_direction) : _body { spawn_position }, length(3), last_direction(initial_direction) {}
+        snake(vec2 const& spawn_position, input initial_direction) : _body { spawn_position }, length(8), last_direction(initial_direction) {}
 
         void grow() { ++length; }
 
@@ -72,7 +72,7 @@ namespace snek {
             }
 
             if (_body.size() == length + 1) _body.erase(_body.begin() + length);
-            std::cout << "score: " << _body.size() << " x: " << _body.front().x << " y: " << _body.front().y << std::endl;
+            std::cout << "score: " << _body.size() << " x: " << _body.front().x << " y: " << _body.front().y << "\n";
         }
 
         auto const& body() { return _body; }
@@ -85,7 +85,7 @@ namespace snek {
 }
 
 auto main() -> int {
-    snek::map snake_map(16, 16);
+    snek::map snake_map(24, 24);
     snake_map.print();
 
     input initial_direction;
@@ -93,7 +93,7 @@ auto main() -> int {
     while(true) {
         initial_direction = keyboard_input();
         if (initial_direction != input::none) {
-            snek::snake snake({7, 7}, initial_direction);
+            snek::snake snake({11, 11}, initial_direction);
 
             while (true) {
                 auto ssnake_map = snake_map;
@@ -106,7 +106,7 @@ auto main() -> int {
                 ssnake_map.print();
                 snake.move(keyboard_input());
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(250));
+                std::this_thread::sleep_for(std::chrono::milliseconds(125));
             }
 
             break;
