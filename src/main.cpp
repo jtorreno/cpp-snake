@@ -1,7 +1,10 @@
 #include <algorithm>
+#include <chrono>
+#include <cstdlib>
 #include <deque>
 #include <iostream>
 #include <locale>
+#include <thread>
 #include <vector>
 
 #include <conio.h>
@@ -51,24 +54,30 @@ namespace snek {
 
     class snake {
     public:
-        snake(vec2 const& spawn_position, input initial_direction) : body { spawn_position }, length(1), last_direction(initial_direction) {}
+        snake(vec2 const& spawn_position, input initial_direction) : _body { spawn_position }, length(1), last_direction(initial_direction) {}
 
         void grow() { ++length; }
 
         void move(input const& direction) {
-            switch ((direction == input::none) ? last_direction : direction) {
-                case input::up: body.push_front({body.front().x, body.front().y - 1});
-                case input::down: body.push_front({body.front().x, body.front().y + 1});
-                case input::left: body.push_front({body.front().x + 1, body.front().y});
-                case input::right: body.push_front({body.front().x - 1, body.front().y});
+            input ddirection = direction;
+            if (ddirection == input::none) { ddirection = last_direction; } else { last_direction = ddirection; }
 
-                default: {}
+            switch (ddirection) {
+                case input::up: { _body.push_front({_body.front().x, _body.front().y - 1}); break; }
+                case input::down: { _body.push_front({_body.front().x, _body.front().y + 1}); break; }
+                case input::left: { _body.push_front({_body.front().x - 1, _body.front().y}); break; }
+                case input::right: { _body.push_front({_body.front().x + 1, _body.front().y}); break; }
+
+                case input::none: {}
             }
 
-            body.erase(body.begin() + (length - 1));
+            _body.erase(_body.begin() + length);
+            std::cout << "snake length: " << _body.size() << " x: " << _body.front().x << " y: " << _body.front().y << std::endl;
         }
+
+        auto const& body() { return _body; }
     private:
-        std::deque<vec2> body;
+        std::deque<vec2> _body;
         unsigned int length;
 
         input last_direction;
@@ -76,13 +85,32 @@ namespace snek {
 }
 
 auto main() -> int {
-    snek::map snake_map(8, 8);
-    snake_map.at(3, 4) = "O";
+    snek::map snake_map(16, 16);
     snake_map.print();
 
-    auto some_exit_condition = false;
-    while (!some_exit_condition) {
-        if (keyboard_input() == input::down) std::cout << "yay" << std::endl;
+    input initial_direction;
+
+    while(true) {
+        initial_direction = keyboard_input();
+        if (initial_direction != input::none) {
+            snek::snake snake({7, 7}, initial_direction);
+
+            while (true) {
+                auto ssnake_map = snake_map;
+                for (auto i : snake.body()) {
+                    ssnake_map.at(i.x, i.y) = "O";
+                }
+
+                std::system("cls");
+
+                ssnake_map.print();
+                snake.move(keyboard_input());
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            }
+
+            break;
+        }
     }
 
     return 0;
