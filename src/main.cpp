@@ -4,6 +4,7 @@
 #include <deque>
 #include <iostream>
 #include <locale>
+#include <random>
 #include <thread>
 #include <vector>
 
@@ -45,8 +46,10 @@ namespace snek {
             }
         }
 
-        std::string const& at(unsigned int x, unsigned int y) const { return _map.at(y).at(x); }
-        std::string& at(unsigned int x, unsigned int y) { return _map.at(y).at(x); }
+        auto const& at(unsigned int x, unsigned int y) const { return _map.at(y).at(x); }
+        auto& at(unsigned int x, unsigned int y) { return _map.at(y).at(x); }
+
+        auto& internal_map() { return _map; }
 
     private:
         std::vector<std::vector<std::string>> _map;
@@ -54,7 +57,7 @@ namespace snek {
 
     class snake {
     public:
-        snake(vec2 const& spawn_position, input initial_direction) : _body { spawn_position }, length(8), last_direction(initial_direction) {}
+        snake(vec2 const& spawn_position, input initial_direction) : _body { spawn_position }, length(1), last_direction(initial_direction) {}
 
         void grow() { ++length; }
 
@@ -82,6 +85,29 @@ namespace snek {
 
         input last_direction;
     };
+
+    void new_food(map& muh_map, map const& muh_mmap) {
+        for (auto& v : muh_map.internal_map()) {
+            for (auto& i : v) {
+                if (i == "*") i = " ";
+                break;
+            }
+        }
+
+        vec2 food_position;
+        while (true) {
+            std::random_device rd;
+            std::mt19937 prng(rd());
+            std::uniform_int_distribution<int> uid(1, 23);
+
+            food_position.x = uid(prng);
+            food_position.y = uid(prng);
+
+            if (muh_mmap.at(food_position.x, food_position.y) == " ") break;
+        }
+
+        muh_map.at(food_position.x, food_position.y) = "*";
+    }
 }
 
 auto main() -> int {
@@ -94,18 +120,30 @@ auto main() -> int {
         initial_direction = keyboard_input();
         if (initial_direction != input::none) {
             snek::snake snake({11, 11}, initial_direction);
+            bool game_finished = false;
 
-            while (true) {
+            new_food(snake_map, snake_map);
+
+            while (!game_finished) {
                 auto ssnake_map = snake_map;
                 for (auto i : snake.body()) {
+                    if (ssnake_map.at(i.x, i.y) == "O" || ssnake_map.at(i.x, i.y) == "X") {
+                        game_finished = true;
+                        break;
+                    }
+
+                    if (ssnake_map.at(i.x, i.y) == "*") {
+                        new_food(snake_map, ssnake_map);
+                        snake.grow();
+                    }
+
                     ssnake_map.at(i.x, i.y) = "O";
                 }
 
                 std::system("cls");
-
                 ssnake_map.print();
-                snake.move(keyboard_input());
 
+                snake.move(keyboard_input());
                 std::this_thread::sleep_for(std::chrono::milliseconds(125));
             }
 
