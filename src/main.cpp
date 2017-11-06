@@ -28,6 +28,17 @@ public:
     vec2 left() const noexcept { return {x - 1, y}; }
     vec2 right() const noexcept { return {x + 1, y}; }
 
+    vec2 direction(input input) const noexcept {
+        switch (input) {
+            case input::up: { return {x, y - 1}; break;}
+            case input::down: { return {x, y + 1}; break;}
+            case input::left: { return {x - 1, y}; break;}
+            case input::right: { return {x + 1, y}; break;}
+
+            default: { return {x, y}; }
+        }
+    }
+
     int x, y;
 private:
     std::vector<int> v;
@@ -111,7 +122,6 @@ namespace snek {
         for (auto& v : muh_map.internal_map()) {
             for (auto& i : v) {
                 if (i == "*") i = " ";
-                break;
             }
         }
 
@@ -144,16 +154,18 @@ auto main() -> int {
             while (true) {
                 auto ssnake_map = snake_map;
 
-                if (ssnake_map.at(snake.body().front()) == "*") {
-                    new_food(snake_map, ssnake_map);
-                    snake.grow();
-                }
-
                 if (ssnake_map.at(snake.body().front()) == "X") break;
 
                 for (auto i : snake.body()) {
                     ssnake_map.at(i) = "O";
                 }
+
+                if (ssnake_map.at(snake.body().front().direction(snake.last_direction())) == "*") {
+                    new_food(snake_map, ssnake_map);
+                    snake.grow();
+                }
+
+                if (ssnake_map.at(snake.body().front().direction(snake.last_direction())) == "O") break;
 
                 std::system("cls");
                 ssnake_map.print();
