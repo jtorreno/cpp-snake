@@ -10,6 +10,9 @@
 
 #include <conio.h>
 
+std::random_device rd;
+std::mt19937 prng(rd());
+
 enum class input { none, up, down, left, right };
 struct vec2 { int x, y; };
 
@@ -89,15 +92,16 @@ namespace snek {
     void new_food(map& muh_map, map const& muh_mmap) {
         for (auto& v : muh_map.internal_map()) {
             for (auto& i : v) {
-                if (i == "*") i = " ";
+                if (i == "*") {
+                    i = " ";
+                    throw "asdf";
+                }
                 break;
             }
         }
 
         vec2 food_position;
         while (true) {
-            std::random_device rd;
-            std::mt19937 prng(rd());
             std::uniform_int_distribution<int> uid(1, 23);
 
             food_position.x = uid(prng);
@@ -120,25 +124,18 @@ auto main() -> int {
         initial_direction = keyboard_input();
         if (initial_direction != input::none) {
             snek::snake snake({11, 11}, initial_direction);
-            bool game_finished = false;
-
             new_food(snake_map, snake_map);
 
-            while (!game_finished) {
+            while (true) {
                 auto ssnake_map = snake_map;
-                for (auto i : snake.body()) {
-                    if (ssnake_map.at(i.x, i.y) == "O" || ssnake_map.at(i.x, i.y) == "X") {
-                        game_finished = true;
-                        break;
-                    }
 
-                    if (ssnake_map.at(i.x, i.y) == "*") {
-                        new_food(snake_map, ssnake_map);
-                        snake.grow();
-                    }
-
-                    ssnake_map.at(i.x, i.y) = "O";
+                if (ssnake_map.at(snake.body().front().x, snake.body().front().y) == "*") {
+                    new_food(snake_map, ssnake_map);
+                    snake.grow();
                 }
+
+                if (ssnake_map.at(snake.body().front().x, snake.body().front().y) == "O" || ssnake_map.at(snake.body().front().x, snake.body().front().y) == "X") break;
+                for (auto i : snake.body()) { ssnake_map.at(i.x, i.y) = "O"; }
 
                 std::system("cls");
                 ssnake_map.print();
