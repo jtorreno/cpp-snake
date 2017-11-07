@@ -124,9 +124,8 @@ namespace snek {
             if (body.size() == length + 1) body.erase(body.begin() + length);
             for (auto i : body) ssnake_map.at(i) = "O";
 
-            std::cout << "score: " << body.size() << " x: " << body.front().x << " y: " << body.front().y << "\n\n";
-
             ssnake_map.print();
+            std::cout << "\nscore: " << body.size() << " x: " << body.front().x << " y: " << body.front().y << "\n";
 
             return true;
         }
