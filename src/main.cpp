@@ -22,6 +22,8 @@ public:
         y = v.at(1);
     }
 
+    bool operator==(vec2 const& rv) const noexcept { return ((rv.x == x) && (rv.y == y)); }
+
     vec2 direction(input input) const noexcept {
         switch (input) {
             case input::up: { return {x, y - 1}; break;}
@@ -80,29 +82,6 @@ namespace snek {
         std::vector<std::vector<std::string>> _map;
     };
 
-    class snake {
-    public:
-        snake(vec2 const& spawn_position, input initial_direction) : _body { spawn_position }, length(1), _last_direction(initial_direction) {}
-
-        void grow() { ++length; }
-
-        void move(input const& direction) {
-            if (direction == input::none) { direction = _last_direction; } else { _last_direction = direction; }
-            _body.push_front(_body.direction(direction));
-
-            if (_body.size() == length + 1) _body.erase(_body.begin() + length);
-            std::cout << "score: " << _body.size() << " x: " << _body.front().x << " y: " << _body.front().y << "\n";
-        }
-
-        auto const& body() { return _body; }
-        auto const& last_direction() { return _last_direction; }
-    private:
-        std::deque<vec2> _body;
-        unsigned int length;
-
-        input _last_direction;
-    };
-
     void new_food(map& muh_map, map const& muh_mmap) {
         for (auto& v : muh_map.internal_map()) {
             for (auto& i : v) {
@@ -122,6 +101,43 @@ namespace snek {
 
         muh_map.at(food_position) = "*";
     }
+
+    class snake {
+    public:
+        snake(vec2 const& spawn_position, input initial_direction) : body { spawn_position }, length(1), last_direction(initial_direction) {}
+
+        bool move(input const& direction, map& snake_map) {
+            input new_direction = direction;
+
+            if (new_direction == input::none) { new_direction = last_direction; } else { last_direction = new_direction; }
+            body.push_front(body.front().direction(new_direction));
+
+            auto ssnake_map = snake_map;
+
+            if (ssnake_map.at(body.front()) == "X") return false;
+            if (std::count(body.begin(), body.end(), body.front()) > 1) return false;
+
+            if (ssnake_map.at(body.front().direction(last_direction)) == "*") {
+                new_food(snake_map, ssnake_map);
+                ++length;
+            }
+
+            if (body.size() == length + 1) body.erase(body.begin() + length);
+            for (auto i : body) ssnake_map.at(i) = "O";
+
+            std::cout << "score: " << body.size() << " x: " << body.front().x << " y: " << body.front().y << "\n";
+
+            ssnake_map.print();
+
+            return true;
+        }
+
+    private:
+        std::deque<vec2> body;
+        unsigned int length;
+
+        input last_direction;
+    };
 }
 
 auto main() -> int {
@@ -136,24 +152,9 @@ auto main() -> int {
             snek::snake snake({11, 11}, initial_direction);
             new_food(snake_map, snake_map);
 
-            while (true) {
-                auto ssnake_map = snake_map;
-                if (ssnake_map.at(snake.body().front()) == "X") break;
-
-                for (auto i : snake.body()) ssnake_map.at(i) = "O";
-
-                if (ssnake_map.at(snake.body().frgont().direction(snake.last_direction())) == "*") {
-                    new_food(snake_map, ssnake_map);
-                    snake.grow();
-                }
-
-                if (ssnake_map.at(snake.body().front().direction(snake.last_direction())) == "O") break;
-
-                std::system("cls");
-                ssnake_map.print();
-
-                snake.move(keyboard_input());
+            while (snake.move(keyboard_input(), snake_map)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(125));
+                std::system("cls");
             }
 
             break;
