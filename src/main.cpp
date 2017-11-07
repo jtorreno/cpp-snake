@@ -22,12 +22,6 @@ public:
         y = v.at(1);
     }
 
-    vec2 up() const noexcept { return {x, y - 1}; }
-    vec2 down() const noexcept { return {x, y + 1}; }
-
-    vec2 left() const noexcept { return {x - 1, y}; }
-    vec2 right() const noexcept { return {x + 1, y}; }
-
     vec2 direction(input input) const noexcept {
         switch (input) {
             case input::up: { return {x, y - 1}; break;}
@@ -93,17 +87,8 @@ namespace snek {
         void grow() { ++length; }
 
         void move(input const& direction) {
-            input ddirection = direction;
-            if (ddirection == input::none) { ddirection = _last_direction; } else { _last_direction = ddirection; }
-
-            switch (ddirection) {
-                case input::up: { _body.push_front(_body.front().up()); break; }
-                case input::down: { _body.push_front(_body.front().down()); break; }
-                case input::left: { _body.push_front(_body.front().left()); break; }
-                case input::right: { _body.push_front(_body.front().right()); break; }
-
-                case input::none: {}
-            }
+            if (direction == input::none) { direction = _last_direction; } else { _last_direction = direction; }
+            _body.push_front(_body.direction(direction));
 
             if (_body.size() == length + 1) _body.erase(_body.begin() + length);
             std::cout << "score: " << _body.size() << " x: " << _body.front().x << " y: " << _body.front().y << "\n";
@@ -153,14 +138,11 @@ auto main() -> int {
 
             while (true) {
                 auto ssnake_map = snake_map;
-
                 if (ssnake_map.at(snake.body().front()) == "X") break;
 
-                for (auto i : snake.body()) {
-                    ssnake_map.at(i) = "O";
-                }
+                for (auto i : snake.body()) ssnake_map.at(i) = "O";
 
-                if (ssnake_map.at(snake.body().front().direction(snake.last_direction())) == "*") {
+                if (ssnake_map.at(snake.body().frgont().direction(snake.last_direction())) == "*") {
                     new_food(snake_map, ssnake_map);
                     snake.grow();
                 }
