@@ -11,8 +11,7 @@
 
 #include <conio.h>
 
-std::random_device rd;
-std::mt19937 prng(rd());
+std::mt19937 prng(std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
 
 enum class input { none, up, down, left, right };
 class vec2 {
@@ -117,7 +116,7 @@ namespace snek {
             if (ssnake_map.at(body.front()) == "X") return false;
             if (std::count(body.begin(), body.end(), body.front()) > 1) return false;
 
-            if (ssnake_map.at(body.front().direction(last_direction)) == "*") {
+            if (ssnake_map.at(body.front()) == "*") {
                 new_food(snake_map, ssnake_map);
                 ++length;
             }
@@ -125,7 +124,7 @@ namespace snek {
             if (body.size() == length + 1) body.erase(body.begin() + length);
             for (auto i : body) ssnake_map.at(i) = "O";
 
-            std::cout << "score: " << body.size() << " x: " << body.front().x << " y: " << body.front().y << "\n";
+            std::cout << "score: " << body.size() << " x: " << body.front().x << " y: " << body.front().y << "\n\n";
 
             ssnake_map.print();
 
