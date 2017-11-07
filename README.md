@@ -1,5 +1,7 @@
 # cpp-snake ![mistake-badge](https://img.shields.io/badge/mistake-yes-red.svg)
 
+![gameplay](https://i.imgur.com/KvbEYr7.gif)
+
 beware :snake:
 
 # build
