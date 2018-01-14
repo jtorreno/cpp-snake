@@ -16,11 +16,6 @@ std::mt19937 prng(std::chrono::system_clock::now().time_since_epoch() / std::chr
 enum class input { none, up, down, left, right };
 class vec2 {
 public:
-    vec2(std::initializer_list<int> list) : v(list) {
-        x = v.at(0);
-        y = v.at(1);
-    }
-
     bool operator==(vec2 const& rv) const noexcept { return ((rv.x == x) && (rv.y == y)); }
 
     vec2 direction(input input) const noexcept {
@@ -35,8 +30,6 @@ public:
     }
 
     int x, y;
-private:
-    std::vector<int> v;
 };
 
 auto keyboard_input() noexcept {
