@@ -21,10 +21,10 @@ public:
 
     vec2 direction(input input) const noexcept {
         switch (input) {
-            case input::up: { return {x, y - 1}; break;}
-            case input::down: { return {x, y + 1}; break;}
-            case input::left: { return {x - 1, y}; break;}
-            case input::right: { return {x + 1, y}; break;}
+            case input::up: return {x, y - 1};
+            case input::down: return {x, y + 1};
+            case input::left: return {x - 1, y};
+            case input::right: return {x + 1, y};
 
             default: { return {x, y}; }
         }
