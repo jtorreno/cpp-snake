@@ -11,7 +11,7 @@
 
 #include <conio.h>
 
-static_assert(__WIN32);
+static_assert(_WIN32);
 std::mt19937 prng(std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
 
 enum class input { none, up, down, left, right };
